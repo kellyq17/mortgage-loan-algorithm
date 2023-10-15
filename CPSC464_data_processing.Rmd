@@ -1,0 +1,74 @@
+---
+title: "CPSC464"
+output: html_document
+date: "2023-10-14"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+loans <- read.csv('2022_public_lar_csv.csv', nrows = 3000000)
+```
+
+```{r}
+head(loans)
+loans
+```
+```{r}
+# delete rows with a race value of Race Not Available
+column_name <- "derived_race"
+value_to_remove <- "Race Not Available"
+
+loans <- loans[loans[, column_name] != value_to_remove, ]
+```
+
+```{r}
+# if the application was withdrawn (4) or incomplete (5), then delete
+column_name <- "action_taken"
+values_to_remove <- c(4, 5)
+
+# convert values of 1, 2, 6, 8 to 1 to represent approved
+# convert values of 3 and 7 to 0 to represent declined
+loans <- loans[!loans[, column_name] %in% values_to_remove, ]
+loans[, column_name] <- ifelse(loans[, column_name] %in% c(1, 2, 6, 8), 1, loans[, column_name])
+loans[, column_name] <- ifelse(loans[, column_name] %in% c(3, 7), 0, loans[, column_name])
+```
+
+```{r}
+# create a correlation matrix of continuous variables to see which ones correlate with each other 
+continuous_variables = c("loan_amount", "combined_loan_to_value_ratio", "interest_rate", "rate_spread", "total_loan_costs", "origination_charges", "loan_term", "discount_points", "lender_credits", "property_value", "income", "debt_to_income_ratio")
+
+for (col_name in continuous_variables) {
+  loans[,col_name] <- as.numeric(loans[,col_name])
+}
+
+loans_omitted <- loans[complete.cases(loans[, continuous_variables]), ]
+correlation_matrix <- cor(loans_omitted[, continuous_variables])
+correlation_matrix
+```
+
+```{r}
+# run principal components analysis to see if certain continuous variables can be grouped together
+# check with the correlation matrix to see if results make sense
+pca <- princomp(loans_omitted[, continuous_variables], cor = TRUE)
+summary(pca)
+print(pca$loadings, cutoff = 0, digits = 2)
+round(pca$sdev^2,2)
+screeplot(pca, type = "lines", col = "red", lwd = 2, pch = 19, cex = 1.2, 
+          main = "Scree Plot of Continuous Variables in Loans Data")
+```
+
+Looking at the cumulative proportion of variance, eigenvalues of the components, and scree plot, around 5 principal components seems to be the correct cutoff. 
+
+Based off of these principal components, many variables are correlated with each other and can be grouped together. We will be using the main indicator variables in each of these groups to find the best indicators for loan acceptance using a generalized linear model.  
+
+##GLM creation
+```{r}
+pca_variables = c("loan_amount", "combined_loan_to_value_ratio", "loan_term", "rate_spread", "debt_to_income_ratio")
+data_subset <- loans[c("action_taken", pca_variables)]
+model <- glm(action_taken ~ ., data = data_subset, family = binomial(link = "logit"))
+summary(model)
+```
+All seem to be predictors except for the loan_amount group. This doesn't align with what we expected, but the statistical methods may have been skewed due to the large amount of data present and a lack of normality. 
