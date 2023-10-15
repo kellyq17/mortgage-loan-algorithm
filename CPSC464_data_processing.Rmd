@@ -72,3 +72,17 @@ model <- glm(action_taken ~ ., data = data_subset, family = binomial(link = "log
 summary(model)
 ```
 All seem to be predictors except for the loan_amount group. This doesn't align with what we expected, but the statistical methods may have been skewed due to the large amount of data present and a lack of normality. 
+
+```{r}
+anova_result_loan_amount <- aov(loan_amount ~ derived_race, data = loans)
+anova_result_ltv <- aov(combined_loan_to_value_ratio ~ derived_race, data = loans)
+anova_result_loan_term <- aov(loan_term ~ derived_race, data = loans)
+anova_result_rate_spread <- aov(rate_spread ~ derived_race, data = loans)
+anova_result_dti <- aov(debt_to_income_ratio ~ derived_race, data = loans)
+
+summary(anova_result_loan_amount)
+summary(anova_result_ltv)
+summary(anova_result_loan_term)
+summary(anova_result_rate_spread)
+summary(anova_result_dti)
+```
