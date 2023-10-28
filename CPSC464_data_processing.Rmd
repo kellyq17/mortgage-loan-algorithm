@@ -37,6 +37,10 @@ loans[, column_name] <- ifelse(loans[, column_name] %in% c(3, 7), 0, loans[, col
 ```
 
 ```{r}
+write.csv(loans, "cleaned_loans.csv")
+```
+
+```{r}
 # create a correlation matrix of continuous variables to see which ones correlate with each other 
 continuous_variables = c("loan_amount", "combined_loan_to_value_ratio", "interest_rate", "rate_spread", "total_loan_costs", "origination_charges", "loan_term", "discount_points", "lender_credits", "property_value", "income", "debt_to_income_ratio")
 
