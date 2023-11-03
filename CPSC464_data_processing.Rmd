@@ -21,6 +21,8 @@ loans
 column_name <- "derived_race"
 value_to_remove <- "Race Not Available"
 
+unique(loans[,column_name])
+
 loans <- loans[loans[, column_name] != value_to_remove, ]
 ```
 
@@ -34,6 +36,24 @@ values_to_remove <- c(4, 5)
 loans <- loans[!loans[, column_name] %in% values_to_remove, ]
 loans[, column_name] <- ifelse(loans[, column_name] %in% c(1, 2, 6, 8), 1, loans[, column_name])
 loans[, column_name] <- ifelse(loans[, column_name] %in% c(3, 7), 0, loans[, column_name])
+```
+
+```{r}
+column_name <- "applicant_age"
+unique(loans[,column_name])
+
+values_to_remove = c("8888")
+
+loans <- loans[!loans[, column_name] %in% values_to_remove, ]
+loans$applicant_age[loans$applicant_age == "<25"] <- 1
+loans$applicant_age[loans$applicant_age == "25-34"] <- 2
+loans$applicant_age[loans$applicant_age == "35-44"] <- 3
+loans$applicant_age[loans$applicant_age == "45-54"] <- 4
+loans$applicant_age[loans$applicant_age == "55-64"] <- 5
+loans$applicant_age[loans$applicant_age == "65-74"] <- 6
+loans$applicant_age[loans$applicant_age == ">74"] <- 7
+
+unique(loans$debt_to_income_ratio)
 ```
 
 ```{r}
