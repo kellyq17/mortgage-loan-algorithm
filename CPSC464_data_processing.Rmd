@@ -9,7 +9,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-loans <- read.csv('2022_public_lar_csv.csv', nrows = 3000000)
+loans <- read.csv('2022_public_lar_csv.csv', nrows = 6000000)
 ```
 
 ```{r}
@@ -29,12 +29,12 @@ loans <- loans[loans[, column_name] != value_to_remove, ]
 ```{r}
 # if the application was withdrawn (4) or incomplete (5), then delete
 column_name <- "action_taken"
-values_to_remove <- c(4, 5)
+values_to_remove <- c(1, 6, 4, 5)
 
 # convert values of 1, 2, 6, 8 to 1 to represent approved
 # convert values of 3 and 7 to 0 to represent declined
 loans <- loans[!loans[, column_name] %in% values_to_remove, ]
-loans[, column_name] <- ifelse(loans[, column_name] %in% c(1, 2, 6, 8), 1, loans[, column_name])
+loans[, column_name] <- ifelse(loans[, column_name] %in% c(2, 8), 1, loans[, column_name])
 loans[, column_name] <- ifelse(loans[, column_name] %in% c(3, 7), 0, loans[, column_name])
 ```
 
